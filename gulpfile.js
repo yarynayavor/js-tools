@@ -12,6 +12,7 @@ var browserSync = require('browser-sync').create();
 
 gulp.task('default',function () {
   //this is default task
+  console.log("I am default!");
 });
 
 //added gulp-jshint task
@@ -25,10 +26,10 @@ gulp.task('jshint', function() {
 gulp.task('less', function () {
   return gulp.src('project/less/*.less')
     .pipe(less({
-      paths: [ path.join('project/less') ]
+      paths: [ path.join('less') ]
     }))
-    .pipe(gulp.dest('css'))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest('project/css'))
+    .pipe(browserSync.stream())
 });
 
 //added js task which transpile es6 code to es5 with babel
@@ -74,12 +75,12 @@ gulp.task('del', function () {
 gulp.task('livereload', function () {
 	browserSync.init({
         server: {
-            baseDir: "./"
+            baseDir: "prod"
         }
     });
-    gulp.watch("project/index.html").on('change', browserSync.reload);
-    gulp.watch("dest/css/*.css").on('change', browserSync.reload);
-    gulp.watch("project/js/app.js").on('change', browserSync.reload);
+    gulp.watch("prod/index.html").on('change', browserSync.reload);
+    gulp.watch("prod/css/*.css").on('change', browserSync.reload);
+    gulp.watch("prod/js/app.js").on('change', browserSync.reload);
 });
 
 //-------------------------------------------------------------
@@ -87,7 +88,7 @@ gulp.task('livereload', function () {
 gulp.task('server', function () {
 	browserSync.init({
         server: {
-            baseDir: "./"
+            baseDir: "project"
         }
     });
 	gulp.watch('project/less/*.less',['less']);
