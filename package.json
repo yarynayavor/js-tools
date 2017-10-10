@@ -26,6 +26,7 @@
     "gulp-babel": "^7.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-jshint": "^2.0.4",
+    "gulp-less": "^3.3.2",
     "gulp-sequence": "^0.4.6",
     "gulp-uglify": "^3.0.0",
     "jshint": "^2.9.5"

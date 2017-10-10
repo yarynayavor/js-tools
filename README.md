@@ -28,6 +28,11 @@ Firstly you need to clone this repo:
 Go to destination folder:
 >cd js-tools
 
+Now you need to type:
+>npm install 
+or if you are lazy person:
+>npm i 
+
 Then try to run **gulp** command:
 >gulp
 
