@@ -29,7 +29,8 @@
     "gulp-less": "^3.3.2",
     "gulp-sequence": "^0.4.6",
     "gulp-uglify": "^3.0.0",
-    "jshint": "^2.9.5"
+    "jshint": "^2.9.5",
+    "pump": "^1.0.2"
   },
   "dependencies": {
     "copy": "^0.3.1",
