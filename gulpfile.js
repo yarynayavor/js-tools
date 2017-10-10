@@ -30,7 +30,7 @@ gulp.task('less', function () {
 
 //added js task which transpile es6 code to es5 with babel
 gulp.task('js', function () {
-    return gulp.src('project/js/es/new.js')
+    return gulp.src('project/js/new.js')
         .pipe(babel({
             presets: ['env']
         }))
@@ -48,6 +48,9 @@ gulp.task('concat', function() {
 gulp.task('uglify',['concat'], function (cb) {
   pump([
         gulp.src('project/js/app.js'),
+        babel({
+            presets: ['env']
+        }),
         uglify(),
         gulp.dest('prod/js')
     ],
