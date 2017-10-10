@@ -9,11 +9,7 @@ var uglify = require('gulp-uglify');
 var pump = require('pump');
 const del = require('del');
 var browserSync = require('browser-sync').create();
-
-gulp.task('default',function () {
-  //this is default task
-  console.log("I am default!");
-});
+var gulpSequence = require('gulp-sequence');
 
 //added gulp-jshint task
 gulp.task('jshint', function() {
@@ -22,84 +18,77 @@ gulp.task('jshint', function() {
     .pipe(jshint.reporter('default'));
 });
 
-//added gulp-less task
+//added gulp-less task (compiled css file to ‘prod/css/styles.css’)
 gulp.task('less', function () {
   return gulp.src('project/less/*.less')
     .pipe(less({
       paths: [ path.join('less') ]
     }))
-    .pipe(gulp.dest('project/css'))
+    .pipe(gulp.dest('prod/css'))
     .pipe(browserSync.stream())
 });
 
 //added js task which transpile es6 code to es5 with babel
 gulp.task('js', function () {
-    return gulp.src('project/js/new.js')
+    return gulp.src('project/js/es/new.js')
         .pipe(babel({
             presets: ['env']
         }))
-        .pipe(gulp.dest('dest/js'));
+        .pipe(gulp.dest('prod/js'));
 });
 
-//added js task which copy js/new.js to dest/copy
-gulp.task('copy', function (cb) {
-  copy('project/js/new.js', 'dest/copy', cb);
-});
-
-//added js task which concat one.js and two.js
+//added js task which concat all js projects and libs
 gulp.task('concat', function() {
-  return gulp.src(['project/js/one.js', 'project/js/two.js'])
-    .pipe(concat('onetwo.js'))
-    .pipe(gulp.dest('dest/concat'));
+  return gulp.src(['project/js/*.js','project/js/libs/*.js'])
+    .pipe(concat('app.js'))
+    .pipe(gulp.dest('project/js'));
 });
 
-//added js task which uglify app.js
-gulp.task('uglify', function (cb) {
+//added js task which minify all js code (including libs) to 1 file ‘prod/js/app.js’
+gulp.task('uglify',['concat'], function (cb) {
   pump([
-        gulp.src('project/js/app.js'),
+        gulp.src('project/js/*.js'),
         uglify(),
-        gulp.dest('dest/uglify')
+        gulp.dest('prod/js')
     ],
     cb
   );
 });
 
-//deleted todelete.js from js folder
+//delete prod folder if excist 
 gulp.task('del', function () {
-	del('project/js/todelete.js').then(paths => {
-    	console.log('Deleted this file:\n', paths.join('\n'));
+	const fs = require('fs');
+	fs.exists('prod', (exists) => {
+  		if(exists) {
+  			del('prod').then(paths => {
+    			console.log('Deleted folder:\n', paths.join('\n'));
+			});
+  		} 
 	});
 });
 
-//task livereload (use browser-sync)
+//added js task which copy project/index.html to prod
+gulp.task('copy',function () {
+	return gulp.src('project/index.html')
+		.pipe(gulp.dest('prod'));
+});
+
+// task livereload(use browser-sync)
 gulp.task('livereload', function () {
 	browserSync.init({
         server: {
-            baseDir: "prod"
-        }
-    });
-    gulp.watch("prod/index.html").on('change', browserSync.reload);
-    gulp.watch("prod/css/*.css").on('change', browserSync.reload);
-    gulp.watch("prod/js/app.js").on('change', browserSync.reload);
-});
-
-//-------------------------------------------------------------
-// task server
-gulp.task('server', function () {
-	browserSync.init({
-        server: {
-            baseDir: "project"
+            baseDir: 'prod'
         }
     });
 	gulp.watch('project/less/*.less',['less']);
-    gulp.watch("project/*.html").on('change', browserSync.reload);
-    gulp.watch("project/js/app.js").on('change', browserSync.reload);
+    gulp.watch("prod/*.html").on('change', browserSync.reload);
+    gulp.watch("prod/js/*.js").on('change', browserSync.reload);
 });
 
-//-------------------------------------------------------------
-// task prod
-// gulp.task('prod', function () {
-	
-// });
+// task server which run watches for js,less,html and livereload
+gulp.task('server', gulpSequence('copy','js','less','livereload'));
 
+//task prod
+gulp.task('prod', gulpSequence('del','copy','less','uglify'));
 
+gulp.task('default',['server']);
