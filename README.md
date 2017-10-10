@@ -30,7 +30,8 @@ Go to destination folder:
 
 Now you need to type:
 >npm install 
-or if you are lazy person:
+
+*or if you are lazy person:*
 >npm i 
 
 Then try to run **gulp** command:
