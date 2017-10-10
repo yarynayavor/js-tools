@@ -34,7 +34,8 @@ gulp.task('js', function () {
         .pipe(babel({
             presets: ['env']
         }))
-        .pipe(gulp.dest('prod/js'));
+        .pipe(gulp.dest('prod/js'))
+        .pipe(browserSync.stream())
 });
 
 //added js task which concat all js projects and libs
@@ -64,9 +65,10 @@ gulp.task('del', function () {
 });
 
 //added js task which copy project/index.html to prod
-gulp.task('copy',['del'],function () {
+gulp.task('copy',function () {
 	return gulp.src('project/index.html')
-		.pipe(gulp.dest('prod'));
+		.pipe(gulp.dest('prod'))
+        .pipe(browserSync.stream())
 });
 
 // task livereload(use browser-sync)
@@ -77,15 +79,15 @@ gulp.task('livereload', function () {
         }
     });
 	gulp.watch('project/less/*.less',['less']);
-    gulp.watch("prod/*.html").on('change', browserSync.reload);
-    gulp.watch("prod/js/*.js").on('change', browserSync.reload);
+    gulp.watch("project/*.html",['copy']).on('change', browserSync.reload);
+    gulp.watch("project/js/*.js",['js']).on('change', browserSync.reload);
 });
 
 // task server which run watches for js,less,html and livereload
-gulp.task('server', gulpSequence('copy','js','less','livereload'));
+gulp.task('server', ['copy','js','less','livereload']);  
 
 //task prod
-gulp.task('prod', gulpSequence('copy','less','uglify'));
+gulp.task('prod', gulpSequence('del','copy','less','uglify'));
 
 //task default whick run task server
 gulp.task('default',['server']);

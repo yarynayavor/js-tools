@@ -2,4 +2,4 @@ function printCoord(x, y) {
     alert(`(${x}, ${y})`);
 }
 
-printCoord(2,3);
+printCoord(1,3);
