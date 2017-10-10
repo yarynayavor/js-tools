@@ -7,7 +7,7 @@ var copy = require('copy');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var pump = require('pump');
-const del = require('del');
+var del = require('delete');
 var browserSync = require('browser-sync').create();
 var gulpSequence = require('gulp-sequence');
 
@@ -47,7 +47,7 @@ gulp.task('concat', function() {
 //added js task which minify all js code (including libs) to 1 file ‘prod/js/app.js’
 gulp.task('uglify',['concat'], function (cb) {
   pump([
-        gulp.src('project/js/*.js'),
+        gulp.src('project/js/app.js'),
         uglify(),
         gulp.dest('prod/js')
     ],
@@ -57,18 +57,11 @@ gulp.task('uglify',['concat'], function (cb) {
 
 //delete prod folder if excist 
 gulp.task('del', function () {
-	const fs = require('fs');
-	fs.exists('prod', (exists) => {
-  		if(exists) {
-  			del('prod').then(paths => {
-    			console.log('Deleted folder:\n', paths.join('\n'));
-			});
-  		} 
-	});
+	del.sync(['prod']);
 });
 
 //added js task which copy project/index.html to prod
-gulp.task('copy',function () {
+gulp.task('copy',['del'],function () {
 	return gulp.src('project/index.html')
 		.pipe(gulp.dest('prod'));
 });
@@ -89,6 +82,7 @@ gulp.task('livereload', function () {
 gulp.task('server', gulpSequence('copy','js','less','livereload'));
 
 //task prod
-gulp.task('prod', gulpSequence('del','copy','less','uglify'));
+gulp.task('prod', gulpSequence('copy','less','uglify'));
 
+//task default whick run task server
 gulp.task('default',['server']);
